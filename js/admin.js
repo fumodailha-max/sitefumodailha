@@ -1,70 +1,121 @@
-import { db, storage, auth, collection, addDoc, getDocs, ref, uploadBytes, getDownloadURL, onAuthStateChanged } from './firebase-config.js';
+import { db, storage, auth, collection, addDoc, getDocs, ref, uploadBytes, getDownloadURL, onAuthStateChanged, signOut } from './firebase-config.js';
 
-// Verifica se está logado. Se não, chuta pro login
+// Elementos do DOM
+const catSelect = document.getElementById('prod-categoria');
+const btnLogout = document.getElementById('btn-logout');
+
+// ==========================================
+// 1. VERIFICAÇÃO DE SEGURANÇA (O CORAÇÃO DO FIX)
+// ==========================================
 onAuthStateChanged(auth, (user) => {
-    if (!user) {
+    if (user) {
+        // Se tem usuário, e SÓ AGORA, carregamos as coisas
+        console.log("Usuário logado:", user.email);
+        carregarCategorias();
+    } else {
+        // Se não tem usuário, chuta pro login
         window.location.href = "login.html";
     }
 });
 
-// 1. Carregar Categorias no Select
-const catSelect = document.getElementById('prod-categoria');
-
-async function carregarCategorias() {
-    const querySnapshot = await getDocs(collection(db, "categorias"));
-    catSelect.innerHTML = '<option value="">Selecione...</option>';
-    querySnapshot.forEach((doc) => {
-        catSelect.innerHTML += `<option value="${doc.id}">${doc.data().nome}</option>`;
+// Logout
+if(btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            alert("Saiu!");
+            window.location.href = "login.html";
+        });
     });
 }
-carregarCategorias();
 
-// 2. Adicionar Nova Categoria
-document.getElementById('btn-add-cat').addEventListener('click', async () => {
-    const nomeCat = document.getElementById('cat-nome').value;
-    if(nomeCat) {
-        await addDoc(collection(db, "categorias"), { nome: nomeCat });
-        alert("Categoria criada!");
-        carregarCategorias(); // Atualiza o select
-    }
-});
+// ==========================================
+// 2. FUNÇÕES DO SISTEMA
+// ==========================================
 
-// 3. Adicionar Produto (Com Imagem)
-document.getElementById('btn-add-prod').addEventListener('click', async () => {
-    const nome = document.getElementById('prod-nome').value;
-    const preco = document.getElementById('prod-preco').value;
-    const desc = document.getElementById('prod-desc').value;
-    const catId = document.getElementById('prod-categoria').value;
-    const imgFile = document.getElementById('prod-img').files[0];
-
-    if (!imgFile || !nome || !preco) {
-        alert("Preencha tudo e selecione uma imagem!");
-        return;
-    }
-
-    document.getElementById('upload-status').innerText = "Enviando imagem...";
-
+// Função para Carregar Categorias no Select
+async function carregarCategorias() {
     try {
-        // A. Upload da Imagem pro Storage
-        const storageRef = ref(storage, 'produtos/' + imgFile.name + Date.now());
-        await uploadBytes(storageRef, imgFile);
-        const urlImagem = await getDownloadURL(storageRef);
-
-        // B. Salvar dados no Firestore
-        await addDoc(collection(db, "produtos"), {
-            nome: nome,
-            preco: parseFloat(preco),
-            descricao: desc,
-            categoriaId: catId,
-            imagemUrl: urlImagem,
-            dataCriacao: new Date()
+        const querySnapshot = await getDocs(collection(db, "categorias"));
+        catSelect.innerHTML = '<option value="">Selecione a Categoria</option>';
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Cria a opção no select
+            const option = document.createElement('option');
+            option.value = doc.id; // Usa o ID do documento
+            option.textContent = data.nome;
+            catSelect.appendChild(option);
         });
-
-        alert("Produto cadastrado com sucesso!");
-        document.getElementById('upload-status').innerText = "";
-        // Limpar campos...
     } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro ao salvar: " + error.message);
+        console.error("Erro ao carregar categorias:", error);
+        alert("Erro de permissão: Você está logado como admin?");
     }
-});
+}
+
+// Botão: Criar Nova Categoria
+const btnAddCat = document.getElementById('btn-add-cat');
+if(btnAddCat) {
+    btnAddCat.addEventListener('click', async () => {
+        const nomeCat = document.getElementById('cat-nome').value;
+        if(nomeCat) {
+            try {
+                await addDoc(collection(db, "categorias"), { nome: nomeCat });
+                alert("Categoria criada com sucesso!");
+                document.getElementById('cat-nome').value = ""; // Limpa campo
+                carregarCategorias(); // Recarrega a lista
+            } catch (error) {
+                console.error("Erro ao criar categoria:", error);
+                alert("Erro: " + error.message);
+            }
+        } else {
+            alert("Digite um nome para a categoria!");
+        }
+    });
+}
+
+// Botão: Adicionar Produto
+const btnAddProd = document.getElementById('btn-add-prod');
+if(btnAddProd) {
+    btnAddProd.addEventListener('click', async () => {
+        const nome = document.getElementById('prod-nome').value;
+        const preco = document.getElementById('prod-preco').value;
+        const desc = document.getElementById('prod-desc').value;
+        const catId = document.getElementById('prod-categoria').value;
+        const imgFile = document.getElementById('prod-img').files[0];
+        const statusMsg = document.getElementById('upload-status');
+
+        if (!imgFile || !nome || !preco || !catId) {
+            alert("Preencha todos os campos e selecione uma imagem!");
+            return;
+        }
+
+        statusMsg.innerText = "Enviando imagem... Aguarde.";
+
+        try {
+            // A. Upload da Imagem
+            const storageRef = ref(storage, 'produtos/' + Date.now() + '-' + imgFile.name);
+            await uploadBytes(storageRef, imgFile);
+            const urlImagem = await getDownloadURL(storageRef);
+
+            // B. Salvar no Banco de Dados
+            await addDoc(collection(db, "produtos"), {
+                nome: nome,
+                preco: parseFloat(preco),
+                descricao: desc,
+                categoriaId: catId,
+                imagemUrl: urlImagem,
+                dataCriacao: new Date()
+            });
+
+            alert("Produto cadastrado com sucesso!");
+            statusMsg.innerText = "";
+            // Limpar formulário (opcional)
+            document.getElementById('prod-nome').value = "";
+            document.getElementById('prod-img').value = "";
+            
+        } catch (error) {
+            console.error("Erro:", error);
+            statusMsg.innerText = "Erro ao salvar.";
+            alert("Erro ao salvar: " + error.message);
+        }
+    });
+}
