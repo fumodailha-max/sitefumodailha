@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Tabacaria</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <h2>Gerenciamento de Estoque</h2>
+        <button id="btn-logout">Sair</button>
+
+        <hr>
+
+        <div class="panel-section">
+            <h3>Nova Categoria</h3>
+            <input type="text" id="cat-nome" placeholder="Ex: Sedas, Bongs...">
+            <button id="btn-add-cat">Criar Categoria</button>
+        </div>
+
+        <hr>
+
+        <div class="panel-section">
+            <h3>Novo Produto</h3>
+            <input type="text" id="prod-nome" placeholder="Nome do Produto">
+            <input type="number" id="prod-preco" placeholder="Preço (R$)">
+            <textarea id="prod-desc" placeholder="Descrição braba..."></textarea>
+            
+            <select id="prod-categoria">
+                <option value="">Selecione a Categoria</option>
+                </select>
+
+            <label>Foto do Produto:</label>
+            <input type="file" id="prod-img">
+
+            <button id="btn-add-prod">Cadastrar Produto</button>
+            <p id="upload-status"></p>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
