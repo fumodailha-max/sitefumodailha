@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabacaria Underground</title>
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <header class="graffiti-header">
-        <h1>TABACARIA <span class="neon">UNDERGROUND</span></h1>
+        <div class="brand">
+            <h1>TABACARIA <span class="neon">UNDERGROUND</span></h1>
+        </div>
         <nav>
-            <a href="#produtos">Produtos</a>
+            <a href="#produtos">Estoque</a>
             <a href="#contato">Contato</a>
-            <a href="login.html" id="btn-area-cliente">Área do Cliente</a>
+            <a href="login.html" id="btn-area-cliente">Login</a>
         </nav>
     </header>
 
@@ -23,18 +25,21 @@
             </section>
 
         <section id="produtos" class="products-grid">
-            <p class="loading-text">Carregando estoque...</p>
+            <p class="loading-text">Carregando a fumaça...</p>
         </section>
 
         <section id="contato" class="contact-section">
             <h2>Cola na Grade</h2>
             <p>Rua da Fumaça, 420 - Subsolo</p>
-            <div class="mapa-placeholder">MAPA AQUI</div>
+            <p>Aberto das 14h às 04:20h</p>
+            <div class="mapa-placeholder">
+                <p>Google Maps Embed Aqui</p>
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>© 2024 Tabacaria Underground</p>
+        <p>© 2024 Tabacaria Underground - Estilo de Vida</p>
     </footer>
 
     <script type="module" src="js/firebase-config.js"></script>
