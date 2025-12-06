@@ -1,0 +1,77 @@
+:root {
+    --bg-dark: #111;
+    --wall-texture: url('https://www.transparenttextures.com/patterns/asfalt-dark.png'); /* Textura leve */
+    --neon-green: #39ff14;
+    --neon-pink: #ff00ff;
+    --font-graffiti: 'Permanent Marker', cursive;
+    --font-body: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: var(--wall-texture);
+    color: #fff;
+    font-family: var(--font-body);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Estilo Parede Pichada */
+.graffiti-header {
+    background: #000;
+    border-bottom: 4px solid var(--neon-pink);
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    font-family: var(--font-graffiti);
+    font-size: 3rem;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.neon {
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+/* Grid de Produtos Responsivo */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.product-card {
+    background: #1a1a1a;
+    border: 2px dashed #444;
+    padding: 15px;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: scale(1.02);
+    border-color: var(--neon-pink);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.btn-comprar {
+    background-color: var(--neon-green);
+    color: #000;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: var(--font-graffiti);
+    font-size: 1.2rem;
+}
