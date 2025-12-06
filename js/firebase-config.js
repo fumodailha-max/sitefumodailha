@@ -4,14 +4,15 @@ import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://w
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// COLOQUE SUAS CHAVES DO FIREBASE AQUI
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO_ID",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "NUMERO",
-  appId: "ID_DO_APP"
+  apiKey: "AIzaSyBN6t8nhHJlYlSuPZa5kNbBvlxI5g4Ig7g",
+  authDomain: "siteloja-8f6fc.firebaseapp.com",
+  projectId: "siteloja-8f6fc",
+  storageBucket: "siteloja-8f6fc.firebasestorage.app",
+  messagingSenderId: "305863413152",
+  appId: "1:305863413152:web:3cc648f479debeaa09e8c5",
+  measurementId: "G-6F84STNS3T"
 };
 
 // Inicializa e exporta para usar nos outros arquivos
