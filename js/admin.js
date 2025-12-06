@@ -5,15 +5,13 @@ const catSelect = document.getElementById('prod-categoria');
 const btnLogout = document.getElementById('btn-logout');
 
 // ==========================================
-// 1. VERIFICAÇÃO DE SEGURANÇA (O CORAÇÃO DO FIX)
+// 1. VERIFICAÇÃO DE SEGURANÇA
 // ==========================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Se tem usuário, e SÓ AGORA, carregamos as coisas
-        console.log("Usuário logado:", user.email);
+        console.log("Admin logado:", user.email);
         carregarCategorias();
     } else {
-        // Se não tem usuário, chuta pro login
         window.location.href = "login.html";
     }
 });
@@ -22,7 +20,6 @@ onAuthStateChanged(auth, (user) => {
 if(btnLogout) {
     btnLogout.addEventListener('click', () => {
         signOut(auth).then(() => {
-            alert("Saiu!");
             window.location.href = "login.html";
         });
     });
@@ -32,26 +29,24 @@ if(btnLogout) {
 // 2. FUNÇÕES DO SISTEMA
 // ==========================================
 
-// Função para Carregar Categorias no Select
+// Carregar Categorias
 async function carregarCategorias() {
     try {
         const querySnapshot = await getDocs(collection(db, "categorias"));
         catSelect.innerHTML = '<option value="">Selecione a Categoria</option>';
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Cria a opção no select
             const option = document.createElement('option');
-            option.value = doc.id; // Usa o ID do documento
+            option.value = doc.id;
             option.textContent = data.nome;
             catSelect.appendChild(option);
         });
     } catch (error) {
         console.error("Erro ao carregar categorias:", error);
-        alert("Erro de permissão: Você está logado como admin?");
     }
 }
 
-// Botão: Criar Nova Categoria
+// Criar Categoria
 const btnAddCat = document.getElementById('btn-add-cat');
 if(btnAddCat) {
     btnAddCat.addEventListener('click', async () => {
@@ -59,20 +54,21 @@ if(btnAddCat) {
         if(nomeCat) {
             try {
                 await addDoc(collection(db, "categorias"), { nome: nomeCat });
-                alert("Categoria criada com sucesso!");
-                document.getElementById('cat-nome').value = ""; // Limpa campo
-                carregarCategorias(); // Recarrega a lista
+                alert("Categoria criada!");
+                document.getElementById('cat-nome').value = "";
+                carregarCategorias();
             } catch (error) {
-                console.error("Erro ao criar categoria:", error);
-                alert("Erro: " + error.message);
+                alert("Erro ao criar categoria: " + error.message);
             }
         } else {
-            alert("Digite um nome para a categoria!");
+            alert("Dê um nome para a categoria!");
         }
     });
 }
 
-// Botão: Adicionar Produto
+// ==========================================
+// 3. ADICIONAR PRODUTO (MODIFICADO)
+// ==========================================
 const btnAddProd = document.getElementById('btn-add-prod');
 if(btnAddProd) {
     btnAddProd.addEventListener('click', async () => {
@@ -83,39 +79,49 @@ if(btnAddProd) {
         const imgFile = document.getElementById('prod-img').files[0];
         const statusMsg = document.getElementById('upload-status');
 
-        if (!imgFile || !nome || !preco || !catId) {
-            alert("Preencha todos os campos e selecione uma imagem!");
+        // VALIDAÇÃO: Removi a obrigação da imagem (!imgFile)
+        if (!nome || !preco || !catId) {
+            alert("Preencha pelo menos Nome, Preço e Categoria!");
             return;
         }
 
-        statusMsg.innerText = "Enviando imagem... Aguarde.";
+        statusMsg.innerText = "Processando...";
 
         try {
-            // A. Upload da Imagem
-            const storageRef = ref(storage, 'produtos/' + Date.now() + '-' + imgFile.name);
-            await uploadBytes(storageRef, imgFile);
-            const urlImagem = await getDownloadURL(storageRef);
+            // Define uma imagem padrão (Placeholder cinza escuro para combinar com o tema)
+            let urlImagem = "https://placehold.co/600x400/1a1a1a/FFF?text=Sem+Foto";
 
-            // B. Salvar no Banco de Dados
+            // Só tenta fazer upload SE o usuário selecionou um arquivo
+            if (imgFile) {
+                statusMsg.innerText = "Enviando imagem...";
+                const storageRef = ref(storage, 'produtos/' + Date.now() + '-' + imgFile.name);
+                await uploadBytes(storageRef, imgFile);
+                urlImagem = await getDownloadURL(storageRef);
+            }
+
+            // Salva no Banco de Dados
             await addDoc(collection(db, "produtos"), {
                 nome: nome,
                 preco: parseFloat(preco),
                 descricao: desc,
                 categoriaId: catId,
-                imagemUrl: urlImagem,
+                imagemUrl: urlImagem, // Vai a url do upload OU a url padrão
                 dataCriacao: new Date()
             });
 
             alert("Produto cadastrado com sucesso!");
             statusMsg.innerText = "";
-            // Limpar formulário (opcional)
+            
+            // Limpar formulário
             document.getElementById('prod-nome').value = "";
-            document.getElementById('prod-img').value = "";
+            document.getElementById('prod-preco').value = "";
+            document.getElementById('prod-desc').value = "";
+            document.getElementById('prod-img').value = ""; // Reseta o input file
             
         } catch (error) {
             console.error("Erro:", error);
             statusMsg.innerText = "Erro ao salvar.";
-            alert("Erro ao salvar: " + error.message);
+            alert("Erro: " + error.message);
         }
     });
 }
